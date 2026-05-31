@@ -62,9 +62,19 @@ public class FileStorageService {
         return storeOnDisk(file, filename);
     }
 
+    // Normalize the configured Supabase URL: trim trailing slashes and ensure a scheme,
+    // so a value like "xxx.supabase.co" (no https://) doesn't blow up URI parsing.
+    private String supabaseBase() {
+        String base = supabaseUrl.trim().replaceAll("/+$", "");
+        if (!base.startsWith("http://") && !base.startsWith("https://")) {
+            base = "https://" + base;
+        }
+        return base;
+    }
+
     private String storeOnSupabase(MultipartFile file, String filename) {
         try {
-            String base = supabaseUrl.replaceAll("/+$", "");
+            String base = supabaseBase();
             String uploadUrl = base + "/storage/v1/object/" + supabaseBucket + "/" + filename;
             HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(uploadUrl))
@@ -103,7 +113,7 @@ public class FileStorageService {
         if (fileUrl.startsWith("http") && fileUrl.contains("/storage/v1/object/")) {
             if (!useSupabase()) return;
             try {
-                String base = supabaseUrl.replaceAll("/+$", "");
+                String base = supabaseBase();
                 String filename = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
                 String delUrl = base + "/storage/v1/object/" + supabaseBucket + "/" + filename;
                 HttpRequest req = HttpRequest.newBuilder()
