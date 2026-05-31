@@ -1,0 +1,13 @@
+package com.ecommerce.dto.request;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+public class ApplyCouponRequest {
+    @NotBlank(message = "Coupon code is required")
+    private String code;
+    private BigDecimal cartTotal;
+}

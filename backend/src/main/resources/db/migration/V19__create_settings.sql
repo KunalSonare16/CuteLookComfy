@@ -1,0 +1,6 @@
+CREATE TABLE settings (
+    id BIGSERIAL PRIMARY KEY,
+    key VARCHAR(100) NOT NULL UNIQUE,
+    value TEXT,
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);

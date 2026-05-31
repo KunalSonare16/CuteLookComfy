@@ -1,0 +1,6 @@
+package com.ecommerce.enums;
+
+public enum OrderStatus {
+    PENDING, PAID, PROCESSING, SHIPPED, OUT_FOR_DELIVERY, DELIVERED,
+    CANCELLED, RETURN_REQUESTED, RETURNED
+}
