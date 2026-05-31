@@ -1,0 +1,258 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #EDE8E3;
+  --bg-dark: #1a1a1a;
+  --red: #E8242A;
+  --red-dark: #c01f24;
+  --black: #111111;
+  --white: #FFFFFF;
+  --gray: #888888;
+  --gray-light: #d0cac4;
+  --border: #d5d0cb;
+  --surface: #e5e0db;
+  --text: #111111;
+  --text-muted: #888888;
+  --font-main: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --radius: 4px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --transition: 0.2s ease;
+}
+
+[data-theme="dark"] {
+  --bg: #111111;
+  --bg-dark: #000000;
+  --black: #FFFFFF;
+  --white: #111111;
+  --gray: #888888;
+  --gray-light: #333333;
+  --border: #2a2a2a;
+  --surface: #1e1e1e;
+  --text: #EDE8E3;
+  --text-muted: #666666;
+}
+
+[data-theme="red"] {
+  --bg: #E8242A;
+  --black: #FFFFFF;
+  /* On a red page the accent must contrast, so make --red dark.
+     This keeps CTA buttons, prices and badges visible against the red bg. */
+  --red: #111111;
+  --red-dark: #000000;
+  --gray-light: #d01f25;
+  --border: rgba(255,255,255,0.35);
+  --surface: #d01f25;
+  --text: #FFFFFF;
+  --text-muted: rgba(255,255,255,0.7);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg);
+  color: var(--black);
+  line-height: 1.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+input, textarea, select {
+  font-family: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+/* Scrollbar — subtle, neutral (no red stripe) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.35);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.55);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.35) transparent;
+}
+
+/* Utility classes */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+}
+
+/* Page loader */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--gray-light);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.8); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+/* ===== MOBILE RESPONSIVE FIXES ===== */
+
+/* Hide desktop nav links on mobile — force override inline styles */
+@media (max-width: 768px) {
+  .nav-links-desktop {
+    display: none !important;
+  }
+}
+
+/* Responsive product grids */
+@media (max-width: 900px) {
+  .product-grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 480px) {
+  .product-grid-4 {
+    grid-template-columns: repeat(1, 1fr) !important;
+  }
+}
+
+/* Product detail — stack image above info on mobile */
+@media (max-width: 768px) {
+  .product-detail-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+}
+
+/* Cart — stack items and summary on mobile */
+@media (max-width: 768px) {
+  .cart-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .cart-summary-sticky {
+    position: static !important;
+  }
+}
+
+/* Checkout — stack form and summary on mobile */
+@media (max-width: 768px) {
+  .checkout-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .checkout-summary-sticky {
+    position: static !important;
+    order: -1;
+  }
+}
+
+/* Home featured grid — 2-col on mobile */
+@media (max-width: 768px) {
+  .featured-hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .featured-rest-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .new-arrivals-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Related products on mobile */
+@media (max-width: 768px) {
+  .related-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Fix the red scrollbar stripe overflow */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Sticky Add-to-Bag bar on mobile */
+.sticky-atb {
+  display: none;
+}
+@media (max-width: 768px) {
+  .sticky-atb {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 500;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    gap: 12px;
+    align-items: center;
+  }
+}
