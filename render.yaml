@@ -1,0 +1,71 @@
+# Render Blueprint — provisions the CuteLookComfy backend (Docker) + frontend (static site).
+# Deploy: push this repo to GitHub, then in Render → New → Blueprint → pick the repo.
+# Secret values (sync: false) are left blank on purpose — fill them in the Render dashboard.
+services:
+  # ---------- Backend (Spring Boot, Docker) ----------
+  - type: web
+    name: cutelookcomfy-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      # Database — paste your Supabase Postgres connection details (JDBC form for DB_URL)
+      - key: DB_URL
+        sync: false   # e.g. jdbc:postgresql://db.xxxxx.supabase.co:5432/postgres?sslmode=require
+      - key: DB_USERNAME
+        sync: false   # usually "postgres"
+      - key: DB_PASSWORD
+        sync: false
+      # Auth
+      - key: JWT_SECRET
+        generateValue: true   # Render generates a strong random secret
+      # Google OAuth
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      # Razorpay (start with test keys; swap to rzp_live_… after website approval)
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      # Email (Gmail SMTP)
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      # Supabase Storage (product images)
+      - key: SUPABASE_URL
+        sync: false   # e.g. https://xxxxx.supabase.co
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: product-images
+      # Frontend origin (for CORS + OAuth redirect). Set to the static site URL once known.
+      - key: FRONTEND_URL
+        sync: false   # e.g. https://cutelookcomfy-web.onrender.com
+
+  # ---------- Frontend (React, static site) ----------
+  - type: web
+    name: cutelookcomfy-web
+    runtime: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: ./frontend/build
+    envVars:
+      - key: REACT_APP_API_URL
+        sync: false   # e.g. https://cutelookcomfy-api.onrender.com
+      - key: REACT_APP_RAZORPAY_KEY_ID
+        sync: false
+    routes:
+      # SPA fallback — every path serves index.html so client-side routing works
+      - type: rewrite
+        source: /*
+        destination: /index.html
