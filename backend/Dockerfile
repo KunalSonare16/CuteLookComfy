@@ -12,4 +12,6 @@ RUN mkdir -p /app/uploads
 # (repackaged) jar is the *-exec.jar — the plain *.jar has no Main-Class manifest.
 COPY --from=build /app/target/*-exec.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Render's free tier has no outbound IPv6. smtp.gmail.com (and other hosts) often
+# resolve to IPv6 first, causing "Network unreachable" hangs. Force IPv4.
+ENTRYPOINT ["java", "-Djava.net.preferIPv4Stack=true", "-jar", "app.jar"]
