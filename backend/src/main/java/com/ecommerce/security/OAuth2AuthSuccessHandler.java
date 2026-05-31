@@ -41,7 +41,9 @@ public class OAuth2AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         refreshCookie.setMaxAge(7 * 24 * 60 * 60);
         response.addCookie(refreshCookie);
 
+        // Strip any trailing slash so we never produce "...com//auth/callback" (which 404s)
+        String base = frontendUrl.replaceAll("/+$", "");
         getRedirectStrategy().sendRedirect(request, response,
-            frontendUrl + "/auth/callback?token=" + accessToken);
+            base + "/auth/callback?token=" + accessToken);
     }
 }

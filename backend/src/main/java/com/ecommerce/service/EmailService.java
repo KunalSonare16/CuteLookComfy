@@ -3,6 +3,7 @@ package com.ecommerce.service;
 import com.ecommerce.entity.Order;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -12,6 +13,11 @@ import org.thymeleaf.context.Context;
 
 import jakarta.mail.internet.MimeMessage;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -19,6 +25,18 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+    private final HttpClient httpClient = HttpClient.newHttpClient();
+
+    // Brevo (HTTP email API) — used in production because Render's free tier blocks
+    // outbound SMTP. When brevo.api-key is set, email is sent over HTTPS instead of SMTP.
+    @Value("${brevo.api-key:}")
+    private String brevoApiKey;
+
+    @Value("${mail.from:cutelookcomfy@gmail.com}")
+    private String fromEmail;
+
+    @Value("${mail.from-name:CuteLookComfy}")
+    private String fromName;
 
     // NOTE: these are intentionally synchronous. They access lazy order.user within
     // the caller's transaction/session; running them @Async on another thread would
@@ -86,7 +104,12 @@ public class EmailService {
         sendHtmlEmail(supportInbox, "Contact Form: " + subject, html);
     }
 
+    private boolean useBrevo() {
+        return brevoApiKey != null && !brevoApiKey.isBlank();
+    }
+
     private void sendHtmlEmail(String to, String subject, String html) {
+        if (useBrevo()) { sendViaBrevo(to, subject, html); return; }
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -99,18 +122,50 @@ public class EmailService {
         }
     }
 
+    // Send through Brevo's transactional email HTTP API (https, not SMTP).
+    private void sendViaBrevo(String to, String subject, String html) {
+        try {
+            String body = "{"
+                + "\"sender\":{\"email\":\"" + jsonEscape(fromEmail) + "\",\"name\":\"" + jsonEscape(fromName) + "\"},"
+                + "\"to\":[{\"email\":\"" + jsonEscape(to) + "\"}],"
+                + "\"subject\":\"" + jsonEscape(subject) + "\","
+                + "\"htmlContent\":\"" + jsonEscape(html) + "\"}";
+            HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                .header("api-key", brevoApiKey)
+                .header("Content-Type", "application/json")
+                .header("accept", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+            HttpResponse<String> res = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+            if (res.statusCode() >= 300) {
+                log.error("Brevo email to {} failed ({}): {}", to, res.statusCode(), res.body());
+            }
+        } catch (Exception e) {
+            log.error("Failed to send Brevo email to {}: {}", to, e.getMessage());
+        }
+    }
+
+    private String jsonEscape(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"")
+            .replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
+    }
+
     private String escape(String s) {
         if (s == null) return "";
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     private void sendEmail(String to, String subject, String template, Context ctx) {
+        String html = templateEngine.process(template, ctx);
+        if (useBrevo()) { sendViaBrevo(to, subject, html); return; }
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setText(templateEngine.process(template, ctx), true);
+            helper.setText(html, true);
             mailSender.send(message);
         } catch (Exception e) {
             log.error("Failed to send email to {}: {}", to, e.getMessage());
