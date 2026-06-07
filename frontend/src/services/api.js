@@ -45,6 +45,7 @@ export const authAPI = {
   forgotPassword: (email) => api.post('/api/auth/forgot-password', { email }),
   resetPassword: (token, password) => api.post('/api/auth/reset-password', { token, password }),
   sendRegisterOtp: (email) => api.post('/api/auth/register/send-otp', { email }),
+  changePassword: (currentPassword, newPassword) => api.post('/api/auth/change-password', { currentPassword, newPassword }),
 };
 
 // Products

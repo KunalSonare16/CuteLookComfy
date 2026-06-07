@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import useWindowSize from '../hooks/useWindowSize';
 
 export default function About() {
+  const { isMobile } = useWindowSize();
   return (
     <div style={{ paddingTop: '64px', minHeight: '100vh', background: 'var(--bg)' }}>
       {/* Hero */}
@@ -17,7 +19,7 @@ export default function About() {
       </div>
 
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '80px 32px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', marginBottom: '80px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '40px' : '64px', marginBottom: '80px' }}>
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
             <h2 style={{ fontFamily: "'Barlow Condensed'", fontSize: '40px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text)', marginBottom: '16px' }}>Our Story</h2>
             <p style={{ fontFamily: 'Inter', fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.8 }}>
@@ -40,13 +42,22 @@ export default function About() {
 
         {/* Values */}
         <h2 style={{ fontFamily: "'Barlow Condensed'", fontSize: '48px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text)', marginBottom: '40px', textAlign: 'center' }}>What We Stand For</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px', marginBottom: '80px' }}>
+        <div style={{
+          display: isMobile ? 'flex' : 'grid',
+          gridTemplateColumns: isMobile ? undefined : 'repeat(3, 1fr)',
+          gap: isMobile ? '16px' : '32px',
+          marginBottom: '80px',
+          overflowX: isMobile ? 'auto' : 'visible',
+          scrollSnapType: isMobile ? 'x mandatory' : undefined,
+          WebkitOverflowScrolling: 'touch',
+          paddingBottom: isMobile ? '8px' : 0,
+        }}>
           {[
             { icon: '✦', title: 'Quality First', desc: 'Every fabric, every stitch is chosen with care. We never compromise on quality.' },
             { icon: '♻', title: 'Conscious Fashion', desc: 'We are committed to responsible sourcing and reducing our environmental footprint.' },
             { icon: '❤', title: 'Community', desc: 'You are not just a customer — you are part of the CuteLookComfy family.' },
           ].map(v => (
-            <div key={v.title} style={{ textAlign: 'center', padding: '32px 24px', border: '1px solid var(--border)' }}>
+            <div key={v.title} style={{ textAlign: 'center', padding: '32px 24px', border: '1px solid var(--border)', flex: isMobile ? '0 0 80%' : undefined, scrollSnapAlign: isMobile ? 'center' : undefined }}>
               <div style={{ fontSize: '32px', marginBottom: '16px', color: 'var(--red)' }}>{v.icon}</div>
               <h3 style={{ fontFamily: "'Barlow Condensed'", fontSize: '22px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text)', marginBottom: '10px' }}>{v.title}</h3>
               <p style={{ fontFamily: 'Inter', fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.7 }}>{v.desc}</p>

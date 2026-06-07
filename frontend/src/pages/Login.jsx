@@ -33,6 +33,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [otpStep, setOtpStep] = useState(false); // signup: email-verification step
   const [otp, setOtp] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -267,22 +268,28 @@ export default function Login() {
               <label style={{ fontFamily: 'Inter', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>
                 Password
               </label>
-              <input
-                type="password"
-                value={form.password}
-                onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                required
-                minLength={8}
-                style={{
-                  width: '100%', boxSizing: 'border-box',
-                  background: 'none', border: '1px solid var(--border)',
-                  padding: '12px 16px', color: 'var(--text)',
-                  fontFamily: 'Inter', fontSize: '14px', outline: 'none',
-                  transition: 'border-color 0.2s',
-                }}
-                onFocus={e => e.target.style.borderColor = 'var(--text)'}
-                onBlur={e => e.target.style.borderColor = 'var(--border)'}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={form.password}
+                  onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                  required
+                  minLength={8}
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    background: 'none', border: '1px solid var(--border)',
+                    padding: '12px 48px 12px 16px', color: 'var(--text)',
+                    fontFamily: 'Inter', fontSize: '14px', outline: 'none',
+                    transition: 'border-color 0.2s',
+                  }}
+                  onFocus={e => e.target.style.borderColor = 'var(--text)'}
+                  onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                />
+                <button type="button" onClick={() => setShowPassword(s => !s)} title={showPassword ? 'Hide password' : 'Show password'}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: 'var(--text-muted)' }}>
+                  {showPassword ? '🙈' : '👁'}
+                </button>
+              </div>
               {mode === 'register' && <PasswordStrength password={form.password} />}
             </div>
 

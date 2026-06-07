@@ -42,7 +42,7 @@ export default function Footer() {
       }}>
         <div style={{
           display: 'flex', gap: '48px',
-          animation: 'marqueeScroll 20s linear infinite',
+          animation: 'marqueeScroll 10s linear infinite',
           whiteSpace: 'nowrap',
         }}>
           {Array(8).fill(0).map((_, i) => (

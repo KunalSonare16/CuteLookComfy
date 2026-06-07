@@ -33,13 +33,17 @@ export default function LoadingScreen() {
           transition={{ duration: 0.5, delay: 0.1 }}
           style={{
             fontFamily: "'Barlow Condensed', sans-serif",
-            fontSize: 'clamp(80px, 15vw, 160px)',
+            fontSize: 'clamp(34px, 11vw, 160px)',
             fontWeight: 900,
             letterSpacing: '-0.03em',
             color: '#EDE8E3',
             lineHeight: 0.9,
             textTransform: 'uppercase',
             userSelect: 'none',
+            maxWidth: '100%',
+            padding: '0 16px',
+            textAlign: 'center',
+            wordBreak: 'break-word',
           }}
         >
           CuteLookComfy

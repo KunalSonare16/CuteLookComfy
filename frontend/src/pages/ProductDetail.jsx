@@ -507,8 +507,6 @@ export default function ProductDetail() {
                       {[
                         ['SKU', product.sku],
                         ['Category', product.categoryName],
-                        ['Stock', product.stockQty + ' units'],
-                        ['Weight', product.weight ? product.weight + ' g' : '—'],
                       ].filter(([, v]) => v).map(([k, v]) => (
                         <div key={k}>
                           <div style={{ fontFamily: 'Inter', fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '4px' }}>{k}</div>

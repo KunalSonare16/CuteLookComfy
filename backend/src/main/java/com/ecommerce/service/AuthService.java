@@ -71,6 +71,22 @@ public class AuthService {
         resetTokenRepository.save(prt);
     }
 
+    public void changePassword(User user, String currentPassword, String newPassword) {
+        User dbUser = userRepository.findById(user.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", user.getId()));
+        if (dbUser.getPassword() == null) {
+            throw new IllegalArgumentException("Your account uses Google sign-in and has no password to change");
+        }
+        if (currentPassword == null || !passwordEncoder.matches(currentPassword, dbUser.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new IllegalArgumentException("New password must be at least 8 characters");
+        }
+        dbUser.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(dbUser);
+    }
+
     /** Step 1 of signup: email a verification code. Rejects already-registered emails early. */
     public String sendRegistrationOtp(String email) {
         if (email == null || !email.contains("@"))

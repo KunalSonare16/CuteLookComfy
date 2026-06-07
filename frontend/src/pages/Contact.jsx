@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { contactAPI } from '../services/api';
+import useWindowSize from '../hooks/useWindowSize';
 import toast from 'react-hot-toast';
 
 export default function Contact() {
+  const { isMobile } = useWindowSize();
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -32,7 +34,7 @@ export default function Contact() {
           Contact Us
         </motion.h1>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '40px' : '64px' }}>
           {/* Info */}
           <div>
             <h2 style={{ fontFamily: "'Barlow Condensed'", fontSize: '28px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text)', marginBottom: '24px' }}>Get in Touch</h2>

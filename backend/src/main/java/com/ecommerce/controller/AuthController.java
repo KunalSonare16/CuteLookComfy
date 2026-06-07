@@ -69,4 +69,11 @@ public class AuthController {
         authService.resetPassword(req.get("token"), req.get("password"));
         return ResponseEntity.ok(ApiResponse.success("Password reset successfully"));
     }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@AuthenticationPrincipal User user,
+                                                            @RequestBody Map<String, String> req) {
+        authService.changePassword(user, req.get("currentPassword"), req.get("newPassword"));
+        return ResponseEntity.ok(ApiResponse.success("Password changed successfully"));
+    }
 }
