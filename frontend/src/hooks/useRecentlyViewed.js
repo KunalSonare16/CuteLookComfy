@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { productAPI } from '../services/api';
 
 const KEY = 'clc_recently_viewed';
 const MAX = 8;
@@ -15,10 +16,30 @@ export function addRecentlyViewed(product) {
 export function useRecentlyViewed(excludeId) {
   const [items, setItems] = useState([]);
   useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem(KEY) || '[]');
-      setItems(stored.filter(p => p.id !== excludeId));
-    } catch {}
+    let cancelled = false;
+    let stored = [];
+    try { stored = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { stored = []; }
+    const candidates = stored.filter(p => p.id !== excludeId);
+
+    // Validate against the backend so deleted/unavailable products don't linger.
+    (async () => {
+      const checks = await Promise.all(candidates.map(async (p) => {
+        if (!p.slug) return null;
+        try { await productAPI.getBySlug(p.slug); return p; }
+        catch { return null; } // 404 / removed → drop it
+      }));
+      if (cancelled) return;
+      const valid = checks.filter(Boolean);
+      setItems(valid);
+      // Persist the cleaned list (keep the excluded/current product entry too)
+      try {
+        const validIds = new Set(valid.map(p => p.id));
+        const cleaned = stored.filter(p => p.id === excludeId || validIds.has(p.id));
+        localStorage.setItem(KEY, JSON.stringify(cleaned));
+      } catch {}
+    })();
+
+    return () => { cancelled = true; };
   }, [excludeId]);
   return items;
 }

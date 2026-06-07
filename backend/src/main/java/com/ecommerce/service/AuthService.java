@@ -74,11 +74,12 @@ public class AuthService {
     public void changePassword(User user, String currentPassword, String newPassword) {
         User dbUser = userRepository.findById(user.getId())
             .orElseThrow(() -> new ResourceNotFoundException("User", "id", user.getId()));
-        if (dbUser.getPassword() == null) {
-            throw new IllegalArgumentException("Your account uses Google sign-in and has no password to change");
-        }
-        if (currentPassword == null || !passwordEncoder.matches(currentPassword, dbUser.getPassword())) {
-            throw new IllegalArgumentException("Current password is incorrect");
+        // If the account already has a password, the current one must match.
+        // Google-only accounts (no password yet) can SET one without a current password.
+        if (dbUser.getPassword() != null) {
+            if (currentPassword == null || !passwordEncoder.matches(currentPassword, dbUser.getPassword())) {
+                throw new IllegalArgumentException("Current password is incorrect");
+            }
         }
         if (newPassword == null || newPassword.length() < 8) {
             throw new IllegalArgumentException("New password must be at least 8 characters");
@@ -212,6 +213,7 @@ public class AuthService {
             .gender(user.getGender())
             .dob(user.getDob())
             .isActive(user.isActive())
+            .hasPassword(user.getPassword() != null)
             .createdAt(user.getCreatedAt())
             .build();
     }

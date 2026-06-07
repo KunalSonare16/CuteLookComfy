@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import useWindowSize from '../../hooks/useWindowSize';
 
 const NAV_ITEMS = [
   { to: '/admin', label: 'Dashboard', exact: true },
@@ -14,23 +15,38 @@ const NAV_ITEMS = [
 ];
 
 export default function AdminLayout({ children, title }) {
+  const { isMobile } = useWindowSize();
+
   return (
-    <div style={{ paddingTop: '64px', minHeight: '100vh', display: 'flex' }}>
-      {/* Sidebar */}
-      <aside style={{
+    <div style={{ paddingTop: '64px', minHeight: '100vh', display: 'flex', flexDirection: isMobile ? 'column' : 'row' }}>
+      {/* Sidebar — vertical on desktop, horizontal scrolling bar on mobile */}
+      <aside style={isMobile ? {
+        display: 'flex', gap: '4px', overflowX: 'auto', WebkitOverflowScrolling: 'touch',
+        borderBottom: '1px solid var(--border)', padding: '10px 12px',
+        position: 'sticky', top: '64px', background: 'var(--bg)', zIndex: 5,
+      } : {
         width: '220px', flexShrink: 0,
         borderRight: '1px solid var(--border)',
         padding: '24px 0',
         position: 'sticky', top: '64px',
         height: 'calc(100vh - 64px)', overflowY: 'auto',
       }}>
-        <div style={{ padding: '0 20px 16px', fontFamily: 'Inter', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Admin</div>
+        {!isMobile && (
+          <div style={{ padding: '0 20px 16px', fontFamily: 'Inter', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Admin</div>
+        )}
         {NAV_ITEMS.map(item => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.exact}
-            style={({ isActive }) => ({
+            style={({ isActive }) => (isMobile ? {
+              flexShrink: 0, whiteSpace: 'nowrap',
+              padding: '8px 14px',
+              fontFamily: 'Inter', fontSize: '12px', letterSpacing: '0.05em',
+              textDecoration: 'none', borderRadius: '4px',
+              background: isActive ? 'var(--red)' : 'var(--surface)',
+              color: isActive ? '#fff' : 'var(--text-muted)',
+            } : {
               display: 'block', padding: '10px 20px',
               fontFamily: 'Inter', fontSize: '13px', letterSpacing: '0.05em',
               textDecoration: 'none',
@@ -46,9 +62,9 @@ export default function AdminLayout({ children, title }) {
       </aside>
 
       {/* Main */}
-      <main style={{ flex: 1, padding: '32px', overflowX: 'auto' }}>
+      <main style={{ flex: 1, minWidth: 0, padding: isMobile ? '20px 16px' : '32px', overflowX: 'auto' }}>
         {title && (
-          <h1 style={{ fontFamily: "'Barlow Condensed'", fontSize: '40px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text)', letterSpacing: '-0.01em', marginBottom: '32px' }}>
+          <h1 style={{ fontFamily: "'Barlow Condensed'", fontSize: isMobile ? '32px' : '40px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text)', letterSpacing: '-0.01em', marginBottom: isMobile ? '20px' : '32px' }}>
             {title}
           </h1>
         )}

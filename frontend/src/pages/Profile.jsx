@@ -124,18 +124,22 @@ export default function Profile() {
             {!pwOpen && (
               <button onClick={() => setPwOpen(true)}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--red)' }}>
-                Change
+                {user?.hasPassword ? 'Change' : 'Set Password'}
               </button>
             )}
           </div>
 
           {pwOpen && (
             <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {[
-                ['currentPassword', 'Current Password'],
-                ['newPassword', 'New Password'],
-                ['confirm', 'Confirm New Password'],
-              ].map(([key, label]) => (
+              {!user?.hasPassword && (
+                <p style={{ fontFamily: 'Inter', fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>
+                  Your account was created with Google sign-in. Set a password here to also log in with email + password.
+                </p>
+              )}
+              {(user?.hasPassword
+                ? [['currentPassword', 'Current Password'], ['newPassword', 'New Password'], ['confirm', 'Confirm New Password']]
+                : [['newPassword', 'New Password'], ['confirm', 'Confirm New Password']]
+              ).map(([key, label]) => (
                 <div key={key}>
                   <label style={{ fontFamily: 'Inter', fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>{label}</label>
                   <div style={{ position: 'relative' }}>

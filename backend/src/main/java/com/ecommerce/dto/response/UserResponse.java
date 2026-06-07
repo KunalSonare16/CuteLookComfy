@@ -18,5 +18,6 @@ public class UserResponse {
     private String gender;
     private LocalDate dob;
     private boolean isActive;
+    private boolean hasPassword;
     private LocalDateTime createdAt;
 }
